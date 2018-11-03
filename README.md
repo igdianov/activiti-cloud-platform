@@ -1,1 +1,1 @@
-# activiti-cloud-query-graphql-charts
+# activiti-cloud-query-graphql-platform 
