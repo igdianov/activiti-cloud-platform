@@ -37,11 +37,12 @@ lint: clean init
 
 version: 
 	$(shell jx-release-version > VERSION)
+	sed -i -e "s/version:.*/version: $(shell cat VERSION)/" Chart.yaml
 	@echo Using next release version $(shell cat VERSION)
 
 next-version: 
-	jx step next-version
-	
+	jx step next-version -f Chart.yaml
+
 tag:	
 	jx step tag --charts-dir . --version $(RELEASE_VERSION)
 
