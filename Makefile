@@ -35,10 +35,13 @@ lint: clean init
 	helm dependency build
 	helm lint
 
-version: jx-release-version
+version: 
 	$(shell jx-release-version > VERSION)
 	@echo Using next release version $(shell cat VERSION)
 
+next-version: 
+	jx step next-version
+	
 tag:	
 	jx step tag --charts-dir . --version $(RELEASE_VERSION)
 
