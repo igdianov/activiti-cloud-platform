@@ -73,7 +73,7 @@ spec:
         }
         steps {
           container("maven") {
-            sh "make package"
+            sh "make build"
           }
           container("gsutil") {
             sh "make deploy/gs-bucket"
@@ -101,17 +101,14 @@ spec:
             // so we can retrieve the version in later steps
             sh "make version"
             
-            // Let's test first
-            sh "make install"
+            // Let's build first
+            sh "make build"
 
             // Let's make tag in Git
             sh "make tag"
             
-            // Let's deploy to Nexus
+            // Let's deploy to Github
             sh "make deploy"
-
-            // Let's publish helm chart to Github pages 
-            sh "make deploy/github"
           }
         }
       }
@@ -133,7 +130,7 @@ spec:
               // helm init --client-only 
               // helm repo add ${CHARTMUSEUM_GS_BUCKET} https://storage.googleapis.com/${CHARTMUSEUM_GS_BUCKET}"
                
-              sh "make deploy/gs-bucket"
+              sh "make chartmuseum"
             }
             container("maven") {
               // Let's promote to environments 
