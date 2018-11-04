@@ -11,7 +11,7 @@ GITHUB_CHARTS_BRANCH := $(or $(GITHUB_CHARTS_BRANCH),gh-pages)
 GITHUB_CHARTS_REPO := $(or $(GITHUB_CHARTS_REPO),$(shell git config --get remote.origin.url))
 GITHUB_CHARTS_DIR := $(or $(GITHUB_CHARTS_DIR),$(shell basename $(GITHUB_CHARTS_REPO) .git))
 
-GS_BUCKET_CHARTS_REPO := $(or $(GS_BUCKET_CHARTS_REPO),$(ORG)-charts)
+GS_BUCKET_CHARTS_REPO := $(or $(GS_BUCKET_CHARTS_REPO),$(NAME))
 
 .PHONY: ;
 
@@ -43,6 +43,7 @@ next-version: VERSION
 	@echo Using next release version $(shell cat VERSION)
 
 tag: VERSION
+	git status
 	jx step tag --charts-dir .
 
 credentials: 
@@ -66,6 +67,7 @@ delete:
 	helm delete --purge ${NAME}
 
 clean:
+	rm VERSION
 	rm -rf charts
 	rm -rf ${NAME}*.tgz
 
@@ -74,23 +76,23 @@ deploy: $(NAME)-$(RELEASE_VERSION).tgz
 	rm -rf ${NAME}*.tgz%
 	
 # run this command inside 'gsutil' container in Jenkinsfile pipeline
-chartmuseum: $(NAME)-$(RELEASE_VERSION).tgz
+gs-bucket-charts-repo: 
 	curl --fail -L $(CHART_REPOSITORY)/index.yaml | gsutil cp - "gs://$(GS_BUCKET_CHARTS_REPO)/index.yaml"
 	
-github: $(NAME)-$(RELEASE_VERSION).tgz
+github-charts-repo: $(NAME)-$(RELEASE_VERSION).tgz
 	git clone -b "$(GITHUB_CHARTS_BRANCH)" "$(GITHUB_CHARTS_REPO)" $(GITHUB_CHARTS_DIR)
 	cp "$(NAME)-$(RELEASE_VERSION).tgz" $(GITHUB_CHARTS_DIR)
 	cd $(GITHUB_CHARTS_DIR) && \
 	   helm repo index . && \
 	   git add . && \
 	   git status && \
-	   git commit -m "fix: (version) add $(NAME)-$(RELEASE_VERSION) chart" && \
+	   git commit -m "fix:(index.yaml) add $(NAME)-$(RELEASE_VERSION).tgz" && \
 	   git push origin "$(GITHUB_CHARTS_BRANCH)"
 	   rm -rf $(GITHUB_CHARTS_DIR)
 	   
 release:
-	jx step helm release
-	
+	jx step helm release 
+
 build:
 	jx step helm build	
 	

@@ -19,7 +19,7 @@ spec:
     value: true
     effect: NoSchedule
 
-  # Create sidecar container with gsutil to copy artifacts to Google bucket storage
+  # Create sidecar container with gsutil to publish chartmuseum index.yaml to Google bucket storage 
   volumes:
   - name: gsutil-volume
     secret:
@@ -76,10 +76,10 @@ spec:
             sh "make build"
           }
           container("gsutil") {
-            sh "make deploy/gs-bucket"
+            sh "make gs-bucket-charts-repo"
           }
           container("maven") {
-            sh "make deploy/github"
+            sh "make github-charts-repo"
 
             // Let's test helm chart repos 
             sh "helm init --client-only"
@@ -99,7 +99,7 @@ spec:
             sh "make checkout"
 
             // so we can retrieve the version in later steps
-            sh "make version"
+            sh "make next-version"
             
             // Let's build first
             sh "make build"
@@ -108,7 +108,7 @@ spec:
             sh "make tag"
             
             // Let's deploy to Github
-            sh "make deploy"
+            sh "make github-charts-repo"
           }
         }
       }
@@ -125,12 +125,17 @@ spec:
               sh "make release"
             }
             container("gsutil") {
-              // Generate and publish chartmuseum index.yaml to Google storage bucket
+              // Generate and publish chartmuseum index.yaml to Google storage bucket: ${GS_BUCKET_CHARTS_REPO}
               // To consume published Helm charts from Google storage bucket use:
               // helm init --client-only 
-              // helm repo add ${CHARTMUSEUM_GS_BUCKET} https://storage.googleapis.com/${CHARTMUSEUM_GS_BUCKET}"
+              // helm repo add ${GS_BUCKET_CHARTS_REPO} https://storage.googleapis.com/${GS_BUCKET_CHARTS_REPO}"
                
-              sh "make chartmuseum"
+              sh "make gs-bucket-charts-repo"
+
+              // Let's test Google storage bucket charts repo
+              sh "helm init --client-only"
+              sh "helm repo add ${GS_BUCKET_CHARTS_REPO} https://storage.googleapis.com/${GS_BUCKET_CHARTS_REPO}"
+
             }
             container("maven") {
               // Let's promote to environments 
