@@ -18,6 +18,9 @@ GS_BUCKET_CHARTS_REPO := $(or $(GS_BUCKET_CHARTS_REPO),$(ORG)-charts)
 $(NAME)-$(RELEASE_VERSION).tgz: 
 	${MAKE} package
 
+VERSION: 
+	$(shell jx-release-version > VERSION)
+
 git-rev-list: .PHONY
 	$(eval REV = $(shell git rev-list --tags --max-count=1 --grep $(RELEASE_GREP_EXPR)))
 	$(eval PREVIOUS_REV = $(shell git rev-list --tags --max-count=1 --skip=1 --grep $(RELEASE_GREP_EXPR)))
@@ -34,12 +37,6 @@ lint: clean init
 	rm -rf requirements.lock
 	helm dependency build
 	helm lint
-
-VERSION: 
-	$(shell jx-release-version > VERSION)
-
-version: VERSION
-	${MAKE} next-version
 
 next-version: VERSION
 	sed -i -e "s/version:.*/version: $(shell cat VERSION)/" Chart.yaml
