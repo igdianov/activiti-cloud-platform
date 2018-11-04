@@ -10,6 +10,8 @@ GITHUB_CHARTS_DIR := $(or $(GITHUB_CHARTS_DIR),$(shell basename $(GITHUB_CHARTS_
 
 GS_BUCKET_CHARTS_REPO := $(or $(GS_BUCKET_CHARTS_REPO),$(ORG)-charts)
 
+.PHONY: ;
+
 init:
 	helm init --client-only
 	helm repo add chart-repo $(CHART_REPOSITORY)
@@ -18,6 +20,15 @@ lint: clean init
 	rm -rf requirements.lock
 	helm dependency build
 	helm lint
+
+jx-release-version: .PHONY
+	$(shell jx-release-version > VERSION)
+	@echo Using next release version $(shell cat VERSION)
+
+version: jx-release-version
+
+tag:	
+	jx step tag --version $(RELEASE_VERSION)
 
 package: build 
 	helm package .
