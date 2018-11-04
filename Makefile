@@ -4,7 +4,7 @@ NAME := $(or $(APP_NAME), $(shell basename $(CURRENT)))
 OS := $(shell uname)
 RELEASE_VERSION := $(or $(shell cat VERSION), $(shell sed -n 's/^version: //p' Chart.yaml))
 
-RELEASE_BRANCH := $(or $(CHANGE_TARGET), $(shell git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'))
+RELEASE_BRANCH := $(or $(CHANGE_TARGET),$(shell git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'),master)
 RELEASE_GREP_EXPR := '^[Rr]elease'
 
 GITHUB_CHARTS_BRANCH := $(or $(GITHUB_CHARTS_BRANCH),gh-pages)
@@ -17,6 +17,9 @@ GS_BUCKET_CHARTS_REPO := $(or $(GS_BUCKET_CHARTS_REPO),$(ORG)-charts)
 
 $(NAME)-$(RELEASE_VERSION).tgz: 
 	${MAKE} package
+
+VERSION:
+	$(shell jx-release-version > VERSION)
 
 git-rev-list: .PHONY
 	$(eval REV = $(shell git rev-list --tags --max-count=1 --grep $(RELEASE_GREP_EXPR)))
@@ -35,16 +38,12 @@ lint: clean init
 	helm dependency build
 	helm lint
 
-version: 
-	$(shell jx-release-version > VERSION)
+version: VERSION
 	sed -i -e "s/version:.*/version: $(shell cat VERSION)/" Chart.yaml
 	@echo Using next release version $(shell cat VERSION)
 
-next-version: 
-	jx step next-version -f Chart.yaml
-
-tag:	
-	jx step tag --charts-dir . --version $(RELEASE_VERSION)
+tag: VERSION
+	jx step tag --charts-dir .
 
 credentials: 
 	git config --global credential.helper store
