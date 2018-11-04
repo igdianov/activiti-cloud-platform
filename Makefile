@@ -66,7 +66,7 @@ clean:
 	rm -rf charts
 	rm -rf ${NAME}*.tgz
 
-publish: $(NAME)-$(RELEASE_VERSION).tgz
+deploy: $(NAME)-$(RELEASE_VERSION).tgz
 	curl --fail -u $(CHARTMUSEUM_CREDS_USR):$(CHARTMUSEUM_CREDS_PSW) --data-binary "@$(NAME)-$(RELEASE_VERSION).tgz" $(CHART_REPOSITORY)/api/charts
 	rm -rf ${NAME}*.tgz%
 	
@@ -74,7 +74,7 @@ publish: $(NAME)-$(RELEASE_VERSION).tgz
 chartmuseum: $(NAME)-$(RELEASE_VERSION).tgz
 	curl --fail -L $(CHART_REPOSITORY)/index.yaml | gsutil cp - "gs://$(GS_BUCKET_CHARTS_REPO)/index.yaml"
 	
-deploy: $(NAME)-$(RELEASE_VERSION).tgz
+github: $(NAME)-$(RELEASE_VERSION).tgz
 	git clone -b "$(GITHUB_CHARTS_BRANCH)" "$(GITHUB_CHARTS_REPO)" $(GITHUB_CHARTS_DIR)
 	cp "$(NAME)-$(RELEASE_VERSION).tgz" $(GITHUB_CHARTS_DIR)
 	cd $(GITHUB_CHARTS_DIR) && \
