@@ -76,7 +76,7 @@ spec:
         }
         steps {
           container("maven") {
-            sh "make lint"
+            sh "make preview"
           }
 
           container("gsutil") {
@@ -92,6 +92,7 @@ spec:
             sh "helm repo add ${CHARTMUSEUM_GS_BUCKET} ${PROMOTE_HELM_REPO_URL}"
             sh "helm repo add ${APP_NAME} ${GITHUB_HELM_REPO_URL}"
             sh "helm repo update"
+            input "Pause here"
           }
         }
       }

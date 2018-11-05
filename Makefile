@@ -36,6 +36,8 @@ init:
 
 lint: build
 	helm lint
+
+preview: build
 	helm template .
 
 next-version: VERSION
