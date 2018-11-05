@@ -59,7 +59,10 @@ spec:
       ORG                   = "introproventures"
       APP_NAME              = "activiti-cloud-query-graphql-platform"
       CHARTMUSEUM_CREDS     = credentials("jenkins-x-chartmuseum")
-      GS_BUCKET_CHARTS_REPO = "introproventures"
+      CHARTMUSEUM_GS_BUCKET = "introproventures"
+      PROMOTE_HELM_REPO_URL = "https://storage.googleapis.com/introproventures"
+      GITHUB_CHARTS_REPO    = "https://github.com/igdianov/helm-charts.git"
+      GITHUB_HELM_REPO_URL = "https://igdianov.github.io/helm-charts"
     }
     stages {
       stage("CI Build and push snapshot") {
@@ -73,18 +76,21 @@ spec:
         }
         steps {
           container("maven") {
-            sh "make build"
+            sh "make lint"
           }
+
           container("gsutil") {
-            sh "make gs-bucket-charts-repo"
+            sh "make release/gs-bucket"
           }
+
           container("maven") {
-            sh "make github-charts-repo"
+            sh "make credentials"
+            sh "make release/github"
 
             // Let's test helm chart repos 
             sh "helm init --client-only"
-            sh "helm repo add ${GS_BUCKET_CHARTS_REPO} https://storage.googleapis.com/${GS_BUCKET_CHARTS_REPO}"
-            sh "helm repo add ${APP_NAME} https://igdianov.github.io/${APP_NAME}"
+            sh "helm repo add ${CHARTMUSEUM_GS_BUCKET} ${PROMOTE_HELM_REPO_URL}"
+            sh "helm repo add ${APP_NAME} ${GITHUB_HELM_REPO_URL}"
             sh "helm repo update"
           }
         }
@@ -108,7 +114,7 @@ spec:
             sh "make tag"
             
             // Let's deploy to Github
-            sh "make github-charts-repo"
+            sh "make release/github"
           }
         }
       }
@@ -125,17 +131,8 @@ spec:
               sh "make release"
             }
             container("gsutil") {
-              // Generate and publish chartmuseum index.yaml to Google storage bucket: ${GS_BUCKET_CHARTS_REPO}
-              // To consume published Helm charts from Google storage bucket use:
-              // helm init --client-only 
-              // helm repo add ${GS_BUCKET_CHARTS_REPO} https://storage.googleapis.com/${GS_BUCKET_CHARTS_REPO}"
-               
-              sh "make gs-bucket-charts-repo"
-
-              // Let's test Google storage bucket charts repo
-              sh "helm init --client-only"
-              sh "helm repo add ${GS_BUCKET_CHARTS_REPO} https://storage.googleapis.com/${GS_BUCKET_CHARTS_REPO}"
-
+              // Generate and publish chartmuseum index.yaml to Google storage bucket
+              sh "make release/gs-bucket"
             }
             container("maven") {
               // Let's promote to environments 

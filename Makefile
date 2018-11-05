@@ -7,11 +7,12 @@ RELEASE_VERSION := $(or $(shell cat VERSION), $(shell sed -n 's/^version: //p' C
 RELEASE_BRANCH := $(or $(CHANGE_TARGET),$(shell git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'),master)
 RELEASE_GREP_EXPR := '^[Rr]elease'
 
-GITHUB_CHARTS_BRANCH := $(or $(GITHUB_CHARTS_BRANCH),gh-pages)
 GITHUB_CHARTS_REPO := $(or $(GITHUB_CHARTS_REPO),$(shell git config --get remote.origin.url))
-GITHUB_CHARTS_DIR := $(or $(GITHUB_CHARTS_DIR),$(shell basename $(GITHUB_CHARTS_REPO) .git))
+GITHUB_CHARTS_BRANCH := $(or $(GITHUB_CHARTS_BRANCH),gh-pages)
 
-GS_BUCKET_CHARTS_REPO := $(or $(GS_BUCKET_CHARTS_REPO),$(NAME))
+CHARTMUSEUM_GS_BUCKET := $(or $(CHARTMUSEUM_GS_BUCKET),$(ORG)-chartmuseum))
+
+PROMOTE_HELM_REPO_URL := $(or $(PROMOTE_HELM_REPO_URL),$(CHART_REPOSITORY))
 
 .PHONY: ;
 
@@ -33,10 +34,9 @@ init:
 	helm init --client-only
 	helm repo add chart-repo $(CHART_REPOSITORY)
 
-lint: clean init
-	rm -rf requirements.lock
-	helm dependency build
+lint: build
 	helm lint
+	helm template .
 
 next-version: VERSION
 	sed -i -e "s/version:.*/version: $(shell cat VERSION)/" Chart.yaml
@@ -76,19 +76,20 @@ deploy: $(NAME)-$(RELEASE_VERSION).tgz
 	rm -rf ${NAME}*.tgz%
 	
 # run this command inside 'gsutil' container in Jenkinsfile pipeline
-gs-bucket-charts-repo: 
-	curl --fail -L $(CHART_REPOSITORY)/index.yaml | gsutil cp - "gs://$(GS_BUCKET_CHARTS_REPO)/index.yaml"
+release/gs-bucket: 
+	curl --fail -L $(CHART_REPOSITORY)/index.yaml | gsutil cp - "gs://$(GS_BUCKET)/index.yaml"
 	
-github-charts-repo: $(NAME)-$(RELEASE_VERSION).tgz
+release/github: $(NAME)-$(RELEASE_VERSION).tgz
+	$(eval GITHUB_CHARTS_DIR := $(shell basename $(GITHUB_CHARTS_REPO) .git))
 	git clone -b "$(GITHUB_CHARTS_BRANCH)" "$(GITHUB_CHARTS_REPO)" $(GITHUB_CHARTS_DIR)
 	cp "$(NAME)-$(RELEASE_VERSION).tgz" $(GITHUB_CHARTS_DIR)
 	cd $(GITHUB_CHARTS_DIR) && \
 	   helm repo index . && \
 	   git add . && \
 	   git status && \
-	   git commit -m "fix:(index.yaml) add $(NAME)-$(RELEASE_VERSION).tgz" && \
+	   git commit -m "fix:(version) release $(NAME)-$(RELEASE_VERSION).tgz" && \
 	   git push origin "$(GITHUB_CHARTS_BRANCH)"
-	   rm -rf $(GITHUB_CHARTS_DIR)
+	rm -rf $(GITHUB_CHARTS_DIR)
 	   
 release:
 	jx step helm release 
@@ -97,8 +98,15 @@ build:
 	jx step helm build	
 	
 promote:
-	jx promote -b --all-auto --timeout 1h --version $(RELEASE_VERSION)	
+	jx promote -b --all-auto \
+		--timeout 1h \
+		--version $(RELEASE_VERSION) \
+		--helm-repo-url=$(HELM_REPO_URL)
 
 changelog: git-rev-list
 	@echo Creating Github changelog for release: $(RELEASE_VERSION)
-	jx step changelog --version v$(RELEASE_VERSION) --generate-yaml=true --rev=$(REV) --previous-rev=$(PREVIOUS_REV)
+	jx step changelog \
+		--version v$(RELEASE_VERSION) \
+		--generate-yaml=true \
+		--rev=$(REV) \
+		--previous-rev=$(PREVIOUS_REV)
