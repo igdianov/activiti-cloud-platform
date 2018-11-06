@@ -4,7 +4,7 @@ NAME := $(or $(APP_NAME), $(shell basename $(CURRENT)))
 OS := $(shell uname)
 RELEASE_VERSION := $(or $(shell cat VERSION), $(shell sed -n 's/^version: //p' Chart.yaml))
 
-RELEASE_BRANCH := $(or $(CHANGE_TARGET),$(shell git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@'),master)
+RELEASE_BRANCH := $(or $(RELEASE_BRANCH),master)
 RELEASE_GREP_EXPR := '^[Rr]elease'
 
 GITHUB_CHARTS_REPO := $(or $(GITHUB_CHARTS_REPO),$(shell git config --get remote.origin.url))
