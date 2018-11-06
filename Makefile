@@ -10,7 +10,7 @@ RELEASE_GREP_EXPR := '^[Rr]elease'
 GITHUB_CHARTS_REPO := $(or $(GITHUB_CHARTS_REPO),$(shell git config --get remote.origin.url))
 GITHUB_CHARTS_BRANCH := $(or $(GITHUB_CHARTS_BRANCH),gh-pages)
 
-CHARTMUSEUM_GS_BUCKET := $(or $(CHARTMUSEUM_GS_BUCKET),$(ORG)-chartmuseum))
+CHARTMUSEUM_GS_BUCKET := $(or $(CHARTMUSEUM_GS_BUCKET),$(ORG)-chartmuseum)
 
 PROMOTE_HELM_REPO_URL := $(or $(PROMOTE_HELM_REPO_URL),$(CHART_REPOSITORY))
 
