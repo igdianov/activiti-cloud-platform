@@ -13,6 +13,15 @@ GITHUB_CHARTS_BRANCH := $(or $(GITHUB_CHARTS_BRANCH),gh-pages)
 CHARTMUSEUM_GS_BUCKET := $(or $(CHARTMUSEUM_GS_BUCKET),$(ORG)-chartmuseum)
 
 PROMOTE_HELM_REPO_URL := $(or $(PROMOTE_HELM_REPO_URL),$(CHART_REPOSITORY))
+PROMOTE_APP := $(PROMOTE_APP)
+PROMOTE_ALIAS := $(PROMOTE_ALIAS)
+PROMOTE_ENV := $(PROMOTE_ENV)
+PROMOTE_NAMESPACE := $(PROMOTE_NAMESPACE)
+PROMOTE_ALL_AUTO := $(or $(PROMOTE_ALL_AUTO),false)
+PROMOTE_NO_WAIT := $(or $(PROMOTE_NO_WAIT),false)
+PROMOTE_NO_POLL := $(or $(PROMOTE_NO_POLL),false)
+PROMOTE_NO_MERGE := $(or $(PROMOTE_NO_MERGE),false)
+PROMOTE_VERBOSE := $(or $(PROMOTE_VERBOSE),false)
 
 .PHONY: ;
 
@@ -100,10 +109,18 @@ build:
 	jx step helm build	
 	
 promote:
-	jx promote -b --all-auto \
-		--timeout 1h \
-		--version $(RELEASE_VERSION) \
-		--helm-repo-url=$(PROMOTE_HELM_REPO_URL)
+	jx promote -b \
+		--all-auto=${PROMOTE_ALL_AUTO} \
+		--timeout='1h' \
+		--version='${RELEASE_VERSION}' \
+		--alias='${PROMOTE_ALIAS}' \
+		--app='${PROMOTE_APP}' \
+		--env='${PROMOTE_ENV}' \
+		--namespace='${PROMOTE_NAMESPACE}' \
+		--no-merge=${PROMOTE_NO_MERGE} \
+		--no-poll=${PROMOTE_NO_POLL} \
+		--no-wait=${PROMOTE_NO_WAIT} \
+		--helm-repo-url='${PROMOTE_HELM_REPO_URL}'
 
 changelog: git-rev-list
 	@echo Creating Github changelog for release: $(RELEASE_VERSION)

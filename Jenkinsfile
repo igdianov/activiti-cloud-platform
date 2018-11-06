@@ -58,9 +58,13 @@ spec:
     environment {
       ORG                   = "introproventures"
       APP_NAME              = "activiti-cloud-query-graphql-platform"
+
       CHARTMUSEUM_CREDS     = credentials("jenkins-x-chartmuseum")
       CHARTMUSEUM_GS_BUCKET = "introproventures"
+
       PROMOTE_HELM_REPO_URL = "https://storage.googleapis.com/introproventures"
+      PROMOTE_ALIAS         = "activiti-cloud-query-graphql"
+
       GITHUB_CHARTS_REPO    = "https://github.com/igdianov/helm-charts.git"
       GITHUB_HELM_REPO_URL = "https://igdianov.github.io/helm-charts"
     }
