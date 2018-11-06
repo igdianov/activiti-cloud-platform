@@ -86,11 +86,11 @@ deploy: $(NAME)-$(RELEASE_VERSION).tgz
 	curl --fail -u $(CHARTMUSEUM_CREDS_USR):$(CHARTMUSEUM_CREDS_PSW) --data-binary "@$(NAME)-$(RELEASE_VERSION).tgz" $(CHART_REPOSITORY)/api/charts
 	rm -rf ${NAME}*.tgz%
 	
-# run this command inside 'gsutil' container in Jenkinsfile pipeline
-release/gs-bucket: 
+# run this command inside 'cloud-sdk' container in Jenkinsfile pipeline
+gs-bucket: 
 	curl --fail -L $(CHART_REPOSITORY)/index.yaml | gsutil cp - "gs://$(CHARTMUSEUM_GS_BUCKET)/index.yaml"
 	
-release/github: $(NAME)-$(RELEASE_VERSION).tgz
+github: $(NAME)-$(RELEASE_VERSION).tgz
 	$(eval GITHUB_CHARTS_DIR := $(shell basename $(GITHUB_CHARTS_REPO) .git))
 	git clone -b "$(GITHUB_CHARTS_BRANCH)" "$(GITHUB_CHARTS_REPO)" $(GITHUB_CHARTS_DIR)
 	cp "$(NAME)-$(RELEASE_VERSION).tgz" $(GITHUB_CHARTS_DIR)

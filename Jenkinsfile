@@ -19,7 +19,7 @@ spec:
     value: true
     effect: NoSchedule
 
-  # Create sidecar container with gsutil to publish chartmuseum index.yaml to Google bucket storage 
+# Create sidecar container with gsutil to publish chartmuseum index.yaml to Google bucket storage 
   volumes:
   - name: gsutil-volume
     secret:
@@ -27,15 +27,14 @@ spec:
       items:
       - key: .boto
         path: .boto
-
   containers:
-  - name: gsutil
-    image: introproventures/gsutil
+  - name: cloud-sdk
+    image: google/cloud-sdk:alpine
     command:
     - /bin/sh
     - -c
     args:
-    - cat
+    - gcloud config set pass_credentials_to_gsutil false && cat
     workingDir: /home/jenkins
     securityContext:
       privileged: false
@@ -61,6 +60,8 @@ spec:
 
       CHARTMUSEUM_CREDS     = credentials("jenkins-x-chartmuseum")
       CHARTMUSEUM_GS_BUCKET = "introproventures"
+
+      CHART_REPOSITORY  = "http://jenkins-x-chartmuseum:8080" 
 
       PROMOTE_HELM_REPO_URL = "https://storage.googleapis.com/introproventures"
       PROMOTE_ALIAS         = "activiti-cloud-query-graphql"
@@ -119,24 +120,13 @@ spec:
                 sh "make release"
 
                 // Let's release in Github Charts Repo
-                sh "make release/github"
+                sh "make github"
                 
               }
-              container("gsutil") {
-                // Generate and publish chartmuseum index.yaml to Google storage bucket
-                sh "make release/gs-bucket"
+              container("cloud-sdk") {
+                // Let's update index.yaml in Chartmuseum storage bucket
+                sh "curl --fail -L ${CHART_REPOSITORY}/index.yaml | gsutil cp - gs://${CHARTMUSEUM_GS_BUCKET}/index.yaml"
               }
-
-              // Try consuming published charts
-              container("maven") {
-                // Let's test helm chart repos 
-                sh "helm init --client-only"
-                sh "helm repo add ${CHARTMUSEUM_GS_BUCKET} ${PROMOTE_HELM_REPO_URL}"
-                sh "helm repo add ${APP_NAME} ${GITHUB_HELM_REPO_URL}"
-                sh "helm repo update"
-                input "Pause here"
-              }
-
             }
           }
       }
