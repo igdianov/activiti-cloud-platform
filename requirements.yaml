@@ -2,7 +2,7 @@
 dependencies:
 - name: "activiti-cloud-query-graphql-query"
   repository: "https://introproventures.storage.googleapis.com"
-  version: "1.0.55"
+  version: "1.0.56"
   alias: "graphql-query"
 - name: "activiti-cloud-query-graphql-notifications"
   repository: "https://introproventures.storage.googleapis.com"
