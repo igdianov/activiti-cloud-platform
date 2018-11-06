@@ -75,24 +75,13 @@ spec:
           HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
         }
         steps {
-          container("maven") {
-            sh "make preview"
-          }
-
-          container("gsutil") {
-            sh "make release/gs-bucket"
-          }
-
-          container("maven") {
-            sh "make credentials"
-            sh "make release/github"
-
-            // Let's test helm chart repos 
-            sh "helm init --client-only"
-            sh "helm repo add ${CHARTMUSEUM_GS_BUCKET} ${PROMOTE_HELM_REPO_URL}"
-            sh "helm repo add ${APP_NAME} ${GITHUB_HELM_REPO_URL}"
-            sh "helm repo update"
-            input "Pause here"
+          dir("/home/jenkins/activiti-cloud-query-graphql-platform") {
+              
+              checkout scm
+              
+              container("maven") {
+                sh "make preview"
+              }
           }
         }
       }
@@ -101,43 +90,63 @@ spec:
           branch "master"
         }
         steps {
-          container("maven") {
-            // ensure we're not on a detached head
-            sh "make checkout"
+          // Working directory name must match with chart name
+          dir("/home/jenkins/activiti-cloud-query-graphql-platform") {
+              
+              checkout scm
+              
+              container("maven") {
+                // ensure we're not on a detached head
+                sh "make checkout"
+    
+                // so we can retrieve the version in later steps
+                sh "make next-version"
+                
+                // Let's build first
+                sh "make build"
+    
+                // Let's make tag in Git
+                sh "make tag"
 
-            // so we can retrieve the version in later steps
-            sh "make next-version"
-            
-            // Let's build first
-            sh "make build"
+                // Publish release to Github
+                sh "make changelog"
+                
+                // Release Helm chart in Chartmuseum  
+                sh "make release"
 
-            // Let's make tag in Git
-            sh "make tag"
-            
-            // Let's deploy to Github
-            sh "make release/github"
+                // Let's release in Github Charts Repo
+                sh "make release/github"
+                
+              }
+              container("gsutil") {
+                // Generate and publish chartmuseum index.yaml to Google storage bucket
+                sh "make release/gs-bucket"
+              }
+
+              // Try consuming published charts
+              container("maven") {
+                // Let's test helm chart repos 
+                sh "helm init --client-only"
+                sh "helm repo add ${CHARTMUSEUM_GS_BUCKET} ${PROMOTE_HELM_REPO_URL}"
+                sh "helm repo add ${APP_NAME} ${GITHUB_HELM_REPO_URL}"
+                sh "helm repo update"
+                input "Pause here"
+              }
+
+            }
           }
-        }
       }
       stage("Promote to Environments") {
         when {
           branch "master"
         }
         steps {
-            container("maven") {
-              // Publish release to Github
-              sh "make changelog"
-              
-              // Release Helm chart in Chartmuseum  
-              sh "make release"
-            }
-            container("gsutil") {
-              // Generate and publish chartmuseum index.yaml to Google storage bucket
-              sh "make release/gs-bucket"
-            }
-            container("maven") {
-              // Let's promote to environments 
-              sh "make promote"
+            dir("/home/jenkins/activiti-cloud-query-graphql-platform") {
+
+                container("maven") {
+                  // Let's promote to environments 
+                  sh "make promote"
+                }
             }
         }
       }

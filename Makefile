@@ -103,7 +103,7 @@ promote:
 	jx promote -b --all-auto \
 		--timeout 1h \
 		--version $(RELEASE_VERSION) \
-		--helm-repo-url=$(HELM_REPO_URL)
+		--helm-repo-url=$(PROMOTE_HELM_REPO_URL)
 
 changelog: git-rev-list
 	@echo Creating Github changelog for release: $(RELEASE_VERSION)
