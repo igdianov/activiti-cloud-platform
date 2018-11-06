@@ -79,7 +79,7 @@ deploy: $(NAME)-$(RELEASE_VERSION).tgz
 	
 # run this command inside 'gsutil' container in Jenkinsfile pipeline
 release/gs-bucket: 
-	curl --fail -L $(CHART_REPOSITORY)/index.yaml | gsutil cp - "gs://$(GS_BUCKET)/index.yaml"
+	curl --fail -L $(CHART_REPOSITORY)/index.yaml | gsutil cp - "gs://$(CHARTMUSEUM_GS_BUCKET)/index.yaml"
 	
 release/github: $(NAME)-$(RELEASE_VERSION).tgz
 	$(eval GITHUB_CHARTS_DIR := $(shell basename $(GITHUB_CHARTS_REPO) .git))
