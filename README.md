@@ -1,2 +1,2 @@
-# activiti-cloud-platform 
+# activiti-cloud-application 
 Activiti Cloud Kubernetes Helm Chart with CI/CD in Jenkins-X
