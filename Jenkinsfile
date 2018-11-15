@@ -56,7 +56,7 @@ spec:
     
     environment {
       ORG                   = "introproventures"
-      APP_NAME              = "activiti-cloud-query-graphql-platform"
+      APP_NAME              = "activiti-cloud-application"
 
       CHARTMUSEUM_CREDS     = credentials("jenkins-x-chartmuseum")
       CHARTMUSEUM_GS_BUCKET = "$ORG-chartmuseum"
@@ -80,7 +80,7 @@ spec:
           HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
         }
         steps {
-          dir("/home/jenkins/activiti-cloud-application") {
+          dir("/home/jenkins/$APP_NAME") {
               
               checkout scm
               
@@ -96,7 +96,7 @@ spec:
         }
         steps {
           // Working directory name must match with chart name
-          dir("/home/jenkins/activiti-cloud-application") {
+          dir("/home/jenkins/$APP_NAME") {
               
               checkout scm
               
@@ -135,7 +135,7 @@ spec:
           branch "master"
         }
         steps {
-            dir("/home/jenkins/activiti-cloud-application") {
+            dir("/home/jenkins/$APP_NAME") {
 
                 container("maven") {
                   // Let's promote to environments 
