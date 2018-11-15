@@ -2,6 +2,105 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+application:
+  runtime-bundle:
+    enabled: true
+    db:
+      deployPostgres: false
+    image:
+      pullPolicy: IfNotPresent
+    # extraEnv: |
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_NAME
+    #     value: "HR Group restricted to SimpleProcess and ConnectorProcess"
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_GROUPS
+    #     value: "hr"
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_ACCESS
+    #     value: "WRITE"
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_SERVICENAME
+    #     value: "rb-my-app"
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_KEYS
+    #     value: "SimpleProcess,ConnectorProcess,fixSystemFailure"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_NAME
+    #     value: "testgroup not restricted at all"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_GROUPS
+    #     value: "testgroup"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_ACCESS
+    #     value: "WRITE"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_SERVICENAME
+    #     value: "rb-my-app"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_KEYS
+    #     value: "*"
+
+  activiti-cloud-query:
+    db:
+      deployPostgres: true
+    image:
+      pullPolicy: IfNotPresent
+    # extraEnv: |
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_NAME
+    #     value: "HR Group restricted to SimpleProcess and ConnectorProcess"
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_GROUPS
+    #     value: "hr"
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_ACCESS
+    #     value: "WRITE"
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_SERVICENAME
+    #     value: "rb-my-app"
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_KEYS
+    #     value: "SimpleProcess,ConnectorProcess,fixSystemFailure"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_NAME
+    #     value: "testgroup not restricted at all"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_GROUPS
+    #     value: "testgroup"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_ACCESS
+    #     value: "WRITE"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_SERVICENAME
+    #     value: "rb-my-app"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_KEYS
+    #     value: "*"
+
+  activiti-cloud-connector:
+    enabled: true
+    image:
+      pullPolicy: IfNotPresent
+
+#  activiti-cloud-demo-ui:
+#    enabled: false
+#    ingress:
+#     enabled: true
+#     hostName: "activiti-cloud-demo-ui.jx-staging.cloud.introproventures.com"
+#     annotations:
+#       kubernetes.io/ingress.class: nginx
+#    gatewayUrl:  "http://activiti-cloud-gateway.jx-staging.cloud.introproventures.com"
+#    idmUrl: "http://activiti-keycloak.jx-staging.cloud.introproventures.com/auth/realms/activiti/protocol/openid-connect/token"
+#    idmClientId:  "activiti"
+
+  activiti-cloud-audit:
+    db:
+      deployPostgres: true
+    image:
+      pullPolicy: IfNotPresent
+    # extraEnv: |
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_NAME
+    #     value: "HR Group restricted to SimpleProcess and ConnectorProcess"
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_GROUPS
+    #     value: "hr"
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_ACCESS
+    #     value: "WRITE"
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_SERVICENAME
+    #     value: "rb-my-app"
+    #   - name: ACTIVITI_SECURITY_POLICIES_0_KEYS
+    #     value: "SimpleProcess,ConnectorProcess,fixSystemFailure"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_NAME
+    #     value: "testgroup not restricted at all"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_GROUPS
+    #     value: "testgroup"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_ACCESS
+    #     value: "WRITE"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_SERVICENAME
+    #     value: "rb-my-app"
+    #   - name: ACTIVITI_SECURITY_POLICIES_1_KEYS
+    #     value: "*"
+
 graphql-query:
   replicaCount: 1
   image:
