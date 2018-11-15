@@ -59,12 +59,12 @@ spec:
       APP_NAME              = "activiti-cloud-query-graphql-platform"
 
       CHARTMUSEUM_CREDS     = credentials("jenkins-x-chartmuseum")
-      CHARTMUSEUM_GS_BUCKET = "introproventures"
+      CHARTMUSEUM_GS_BUCKET = "$ORG-chartmuseum"
 
       CHART_REPOSITORY  = "http://jenkins-x-chartmuseum:8080" 
 
-      PROMOTE_HELM_REPO_URL = "https://storage.googleapis.com/introproventures"
-      PROMOTE_ALIAS         = "activiti-cloud-query-graphql"
+      PROMOTE_HELM_REPO_URL = "https://storage.googleapis.com/$ORG-chartmuseum"
+      PROMOTE_ALIAS         = "application"
 
       GITHUB_CHARTS_REPO    = "https://github.com/igdianov/helm-charts.git"
       GITHUB_HELM_REPO_URL = "https://igdianov.github.io/helm-charts"
@@ -80,7 +80,7 @@ spec:
           HELM_RELEASE = "$PREVIEW_NAMESPACE".toLowerCase()
         }
         steps {
-          dir("/home/jenkins/activiti-cloud-query-graphql-platform") {
+          dir("/home/jenkins/activiti-cloud-application") {
               
               checkout scm
               
@@ -96,7 +96,7 @@ spec:
         }
         steps {
           // Working directory name must match with chart name
-          dir("/home/jenkins/activiti-cloud-query-graphql-platform") {
+          dir("/home/jenkins/activiti-cloud-application") {
               
               checkout scm
               
@@ -135,7 +135,7 @@ spec:
           branch "master"
         }
         steps {
-            dir("/home/jenkins/activiti-cloud-query-graphql-platform") {
+            dir("/home/jenkins/activiti-cloud-application") {
 
                 container("maven") {
                   // Let's promote to environments 
