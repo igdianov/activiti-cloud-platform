@@ -2,16 +2,5 @@
 dependencies:
 - name: "application"
   repository: "https://activiti.github.io/activiti-cloud-charts/"
-  version: "0.4.0"
-- name: "activiti-cloud-query-graphql-query"
-  repository: "https://storage.googleapis.com/introproventures-chartmuseum"
-  version: "1.0.57"
-  alias: "graphql-query"
-- name: "activiti-cloud-query-graphql-notifications"
-  repository: "https://storage.googleapis.com/introproventures-chartmuseum"
-  version: "1.0.45"
-  alias: "graphql-notifications"
-- name: "activiti-cloud-query-graphql-subscriptions"
-  repository: "https://storage.googleapis.com/introproventures-chartmuseum"
-  version: "1.0.42"
-  alias: "graphql-subscriptions"
+  version: "0.5.0"
+
