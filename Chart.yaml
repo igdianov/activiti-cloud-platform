@@ -3,4 +3,4 @@ appVersion: "7.0.0.Beta3"
 description: "Activiti Cloud Application Helm Chart for Kubernetes"
 name: activiti-cloud-application
 icon: "https://salaboy.files.wordpress.com/2018/01/acitiviti_icon_fullcolor_github_400x400.png"
-version: 7.0.0-SNAPSHOT
+version: 7.0.11
